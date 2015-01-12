@@ -1,0 +1,181 @@
+<?php if (!defined('THINK_PATH')) exit();?><html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>文档管理</title>
+        <link rel="stylesheet" type="text/css" href="__PUBLIC__/skin/css/base.css">
+        <script language="javascript">
+
+
+            //获得选中其中一个的id
+            function getOneItem()
+            {
+                var allSel = "";
+                if (document.form2.id.value)
+                    return document.form2.id.value;
+                for (i = 0; i < document.form2.id.length; i++)
+                {
+                    if (document.form2.id[i].checked)
+                    {
+                        allSel = document.form2.id[i].value;
+                        break;
+                    }
+                }
+                return allSel;
+            }
+            function selAll()
+            {
+                for (i = 0; i < document.form2.id.length; i++)
+                {
+                    if (!document.form2.id[i].checked)
+                    {
+                        document.form2.id[i].checked = true;
+                    }
+                }
+            }
+            function noSelAll()
+            {
+                for (i = 0; i < document.form2.id.length; i++)
+                {
+                    if (document.form2.id[i].checked)
+                    {
+                        document.form2.id[i].checked = false;
+                    }
+                }
+            }
+        </script>
+
+        <link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+        <link rel="stylesheet" href="kindeditor/plugins/code/prettify.css" />
+        <script charset="utf-8" src="kindeditor/kindeditor.js"></script>
+        <script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
+        <script charset="utf-8" src="kindeditor/plugins/code/prettify.js"></script>
+
+
+        <script>
+            KindEditor.ready(function(K) {
+                var editor1 = K.create('textarea[name="description"]', {
+                    cssPath: 'kindeditor/plugins/code/prettify.css',
+                    uploadJson: 'kindeditor/php/upload_json.php',
+                    fileManagerJson: 'kindeditor/php/file_manager_json.php',
+                    allowFileManager: true,
+                    afterCreate: function() {
+                        var self = this;
+                        K.ctrl(document, 13, function() {
+                            self.sync();
+                            K('form[name=example]')[0].submit();
+                        });
+                        K.ctrl(self.edit.doc, 13, function() {
+                            self.sync();
+                            K('form[name=example]')[0].submit();
+                        });
+                    }
+                });
+                prettyPrint();
+            });
+        </script>
+
+    </head>
+    <body leftmargin="8" topmargin="8" background='__PUBLIC__/skin/images/allbg.gif'>
+
+        <!--  快速转换位置按钮  -->
+        <table width="98%" border="0" cellpadding="0" cellspacing="1" bgcolor="#D1DDAA" align="center">
+            <tr>
+                <td height="26" background="__PUBLIC__/skin/images/newlinebg3.gif">
+                    <table width="98%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td align="center">
+
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!--  内容列表   -->
+        <form action="?s=Product/update" method="post" enctype ="multipart/form-data">
+            <input type="hidden" name="id" value="<?php echo ($list[id]); ?>">
+            <table width="98%" border="0" cellpadding="2" cellspacing="1" bgcolor="#D1DDAA"  style="margin-top:8px"  >
+                <tr bgcolor="#E7E7E7">
+                    <td height="24"  background="__PUBLIC__/skin/images/tbg.gif">&nbsp;添加商品&nbsp;</td>
+                    <td height="24"  background="__PUBLIC__/skin/images/tbg.gif">&nbsp;&nbsp;</td>
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52">
+                    <td width="10%" align="center">一级分类</td>
+                    <td>
+                        <select name="cid" onchange="show()" id="cid" >
+                            <option >-----</option>
+                            <?php if(is_array($cate)): foreach($cate as $key=>$vo): if($vo["id"] == $list['cid']): ?><option value="<?php echo ($vo["id"]); ?>" selected><?php echo ($vo["name"]); ?></option>
+                                    <?php else: ?>
+                                    <option value="<?php echo ($vo["id"]); ?>" ><?php echo ($vo["name"]); ?></option><?php endif; endforeach; endif; ?>
+                        </select></td>
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52" id="show">
+                    <td width="10%" align="center">二级分类</td>
+                    <td>
+                        <select name="cid2" >
+                            <option >-----</option>
+                            <?php if(is_array($cate2)): foreach($cate2 as $key=>$vo): if($vo["id"] == $list['cid2']): ?><option value="<?php echo ($vo["id"]); ?>" selected><?php echo ($vo["name"]); ?></option>
+                                    <?php else: ?>
+                                    <option value="<?php echo ($vo["id"]); ?>" ><?php echo ($vo["name"]); ?></option><?php endif; endforeach; endif; ?>
+                        </select>
+                    </td>   
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52">
+                    <td width="10%" align="center">产品名称</td>
+                    <td ><input type="text" name="name" value="<?php echo ($list[name]); ?>" style="width: 200px;height: 30px"></td>
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52">
+                    <td width="10%" align="center">上传照片</td>
+                    <td><input type="file" name="file"></td>
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52">
+                    <td width="10%" align="center">产品描述</td>
+                    <td ><textarea name="description" style="width: 700px;height:250px"><?php echo ($list[description]); ?></textarea></td>
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52">
+                    <td width="10%" align="center">是否显示</td>
+                    <td >
+                        <?php if($list[display] == 0): ?><input type="radio" name="display" value="0" checked>否
+                        <input type="radio" name="display" value="1">是
+                        <?php else: ?>
+                        <input type="radio" name="display" value="0" >否
+                        <input type="radio" name="display" value="1" checked>是<?php endif; ?>
+                        </td>
+                </tr>
+                <tr  bgcolor="#FAFAF1" height="52">
+                    <td width="10%" align="center"></td>
+                    <td ><input type="submit"></td>
+                </tr>
+            </table>
+        </form>
+
+        <br><br><br><br>
+
+
+
+    </body>
+</html>
+<script type="text/javascript" src="__PUBLIC__/js/jquery.min.js"></script>
+<script>
+
+                            function show()
+                            {
+                                $("#show").html('');
+                                var cid = $("#cid").val();
+                                var data = {"id": cid};
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "?s=Product/show",
+                                    data: data,
+                                    timeout: 90000,
+                                    dataType: 'json',
+                                    async: false,
+                                    success: function(msg) {
+                                        $("#show").show();
+                                        $("#show").append(msg.html);
+                                    }
+                                });
+
+                            }
+</script>
